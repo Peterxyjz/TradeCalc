@@ -1,0 +1,17 @@
+{
+  "name": "TradeCalc - Máy Tính Giá Vào Lệnh",
+  "short_name": "TradeCalc",
+  "description": "Ứng dụng tính toán giá vào lệnh cho trader",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f8fafc",
+  "theme_color": "#3b82f6",
+  "icons": [
+    {
+      "src": "/app-icon.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

@@ -1,36 +1,54 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# TradeCalc - Máy Tính Giá Vào Lệnh
 
-## Getting Started
+Ứng dụng tính toán giá vào lệnh cho trader, tối ưu cho điện thoại di động.
 
-First, run the development server:
+## Tính Năng Chính
+
+- **Thiết lập tài khoản**: Người dùng cần nhập tên và số dư tài khoản (USDT) khi lần đầu sử dụng
+- **Tính giá vào lệnh**: Dựa trên công thức R/Đòn bẫy/SL
+  - **R (Risk)**: Phần trăm rủi ro chấp nhận được
+  - **Đòn bẩy**: Hệ số nhân đòn bẩy
+  - **SL (Stop Loss)**: Phần trăm stop loss
+- **Cài đặt**: Cho phép người dùng thay đổi:
+  - Số dư tài khoản
+  - Giá trị mặc định cho R, Đòn bẩy, và SL
+
+## Công Nghệ Sử Dụng
+
+- Next.js 15.3
+- React 19
+- TypeScript
+- CSS (TailwindCSS)
+- LocalStorage để lưu trữ dữ liệu
+
+## Cài Đặt
 
 ```bash
+# Cài đặt dependencies
+npm install
+
+# Chạy server phát triển
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+
+# Build sản phẩm
+npm run build
+
+# Chạy bản build
+npm run start
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Sử Dụng
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+1. Khi lần đầu truy cập, nhập tên và số dư tài khoản
+2. Ở màn hình tính toán, nhập:
+   - Mức rủi ro (%)
+   - Đòn bẩy (x)
+   - SL (%)
+3. Nhấn "Tính giá vào lệnh" để xem kết quả
+4. Sử dụng nút cài đặt (⚙️) để điều chỉnh các giá trị mặc định và số dư tài khoản
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Lưu Ý
 
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Tất cả dữ liệu được lưu trong trình duyệt của người dùng (localStorage)
+- Ứng dụng được tối ưu cho thiết bị di động
+- Giao diện sáng, hiện đại và dễ sử dụng
