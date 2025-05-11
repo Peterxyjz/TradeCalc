@@ -37,10 +37,29 @@ export default function Calculator({
   const [stopLossPercentage, setStopLossPercentage] = useState(
     settings.defaultStopLossPercentage.toString()
   );
+  
+  // Advanced mode for calculating SL%
+  const [showAdvancedSL, setShowAdvancedSL] = useState(false);
+  const [entryPriceInput, setEntryPriceInput] = useState("");
+  const [stopLossPriceInput, setStopLossPriceInput] = useState("");
 
   // Result
   const [entryPrice, setEntryPrice] = useState<number | null>(null);
   const [error, setError] = useState<string>("");
+  
+  // Function to calculate SL% from entry and SL prices
+  const calculateSLPercentage = () => {
+    const entry = parseFloat(entryPriceInput);
+    const sl = parseFloat(stopLossPriceInput);
+    
+    if (!isNaN(entry) && !isNaN(sl) && entry > 0 && sl > 0 && entry !== sl) {
+      const slPercentage = Math.abs((entry - sl) / entry * 100);
+      setStopLossPercentage(slPercentage.toFixed(2));
+      setShowAdvancedSL(false);
+    } else {
+      setError("Vui lòng nhập giá Entry và SL hợp lệ");
+    }
+  };
 
   // Load settings from localStorage
   useEffect(() => {
@@ -201,19 +220,86 @@ export default function Calculator({
           </div>
 
           <div className="mb-4">
-            <label htmlFor="stopLossPercentage" className="label">
-              SL (%)
-            </label>
-            <input
-              id="stopLossPercentage"
-              type="number"
-              step="0.01"
-              min="0.01"
-              className="input"
-              value={stopLossPercentage}
-              onChange={(e) => setStopLossPercentage(e.target.value)}
-              placeholder="Ví dụ: 2"
-            />
+            <div className="flex justify-between items-center mb-2">
+              <label htmlFor="stopLossPercentage" className="label mb-0">
+                SL (%)
+              </label>
+              <button
+                type="button"
+                className="text-sm text-accent hover:underline"
+                onClick={() => setShowAdvancedSL(!showAdvancedSL)}
+              >
+                {showAdvancedSL ? "Ẩn" : "Nâng cao"}
+              </button>
+            </div>
+            
+            {!showAdvancedSL ? (
+              <input
+                id="stopLossPercentage"
+                type="number"
+                step="0.01"
+                min="0.01"
+                className="input"
+                value={stopLossPercentage}
+                onChange={(e) => setStopLossPercentage(e.target.value)}
+                placeholder="Ví dụ: 2"
+              />
+            ) : (
+              <div className="card" style={{ backgroundColor: "var(--secondary)", padding: "1rem" }}>
+                <div className="mb-3">
+                  <label htmlFor="entryPriceInput" className="label text-sm">
+                    Giá Entry
+                  </label>
+                  <input
+                    id="entryPriceInput"
+                    type="number"
+                    step="0.00000001"
+                    min="0"
+                    className="input"
+                    value={entryPriceInput}
+                    onChange={(e) => setEntryPriceInput(e.target.value)}
+                    placeholder="Ví dụ: 100.5"
+                  />
+                </div>
+                <div className="mb-3">
+                  <label htmlFor="stopLossPriceInput" className="label text-sm">
+                    Giá SL
+                  </label>
+                  <input
+                    id="stopLossPriceInput"
+                    type="number"
+                    step="0.00000001"
+                    min="0"
+                    className="input"
+                    value={stopLossPriceInput}
+                    onChange={(e) => setStopLossPriceInput(e.target.value)}
+                    placeholder="Ví dụ: 98.5"
+                  />
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    className="btn btn-primary btn-sm"
+                    onClick={calculateSLPercentage}
+                    style={{ flex: 1 }}
+                  >
+                    Tính SL %
+                  </button>
+                  <button
+                    type="button"
+                    className="btn btn-secondary btn-sm"
+                    onClick={() => {
+                      setShowAdvancedSL(false);
+                      setEntryPriceInput("");
+                      setStopLossPriceInput("");
+                    }}
+                    style={{ flex: 1 }}
+                  >
+                    Hủy
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
 
           {error && (
