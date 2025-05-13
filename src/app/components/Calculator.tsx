@@ -37,7 +37,7 @@ export default function Calculator({
   const [stopLossPercentage, setStopLossPercentage] = useState(
     settings.defaultStopLossPercentage.toString()
   );
-  
+
   // Advanced mode for calculating SL%
   const [showAdvancedSL, setShowAdvancedSL] = useState(false);
   const [entryPriceInput, setEntryPriceInput] = useState("");
@@ -46,14 +46,14 @@ export default function Calculator({
   // Result
   const [entryPrice, setEntryPrice] = useState<number | null>(null);
   const [error, setError] = useState<string>("");
-  
+
   // Function to calculate SL% from entry and SL prices
   const calculateSLPercentage = () => {
     const entry = parseFloat(entryPriceInput);
     const sl = parseFloat(stopLossPriceInput);
-    
+
     if (!isNaN(entry) && !isNaN(sl) && entry > 0 && sl > 0 && entry !== sl) {
-      const slPercentage = Math.abs((entry - sl) / entry * 100);
+      const slPercentage = Math.abs(((entry - sl) / entry) * 100);
       setStopLossPercentage(slPercentage.toFixed(2));
       setShowAdvancedSL(false);
     } else {
@@ -154,7 +154,7 @@ export default function Calculator({
   return (
     <div className="relative">
       <button
-        className="absolute top-4 right-4 btn-secondary rounded-full p-2"
+        className="absolute top-4 right-4 btn-secondary rounded-full p-1"
         onClick={() => setShowSettings(true)}
         aria-label="Mở cài đặt"
       >
@@ -163,7 +163,7 @@ export default function Calculator({
 
       <div className="card">
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-xl font-bold">Máy tính vào lệnh</h2>
+          <h2 className="text-xl font-bold">TradeCalc</h2>
           <div className="text-sm">
             <span>
               Xin chào, <strong>{userName}</strong>
@@ -232,7 +232,7 @@ export default function Calculator({
                 {showAdvancedSL ? "Ẩn" : "Nâng cao"}
               </button>
             </div>
-            
+
             {!showAdvancedSL ? (
               <input
                 id="stopLossPercentage"
@@ -245,7 +245,10 @@ export default function Calculator({
                 placeholder="Ví dụ: 2"
               />
             ) : (
-              <div className="card" style={{ backgroundColor: "var(--secondary)", padding: "1rem" }}>
+              <div
+                className="card"
+                style={{ backgroundColor: "var(--secondary)", padding: "1rem" }}
+              >
                 <div className="mb-3">
                   <label htmlFor="entryPriceInput" className="label text-sm">
                     Giá Entry
