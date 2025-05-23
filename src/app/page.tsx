@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
 import UserForm from "./components/UserForm";
 import Calculator from "./components/Calculator";
 
@@ -50,6 +51,11 @@ export default function Home() {
         )}
 
         <footer className="mt-6 text-center text-sm">
+          <div className="mb-3">
+            <Link href="/guide" className="text-accent hover:underline">
+              📖 Hướng dẫn sử dụng
+            </Link>
+          </div>
           <p>Copyright © 2025 Peterxyjz - Lê Quang Huy</p>
         </footer>
       </div>
