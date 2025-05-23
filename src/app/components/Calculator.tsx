@@ -46,6 +46,12 @@ export default function Calculator({
   // Result
   const [entryPrice, setEntryPrice] = useState<number | null>(null);
   const [error, setError] = useState<string>("");
+  
+  // Position reduction
+  const [showPositionOptions, setShowPositionOptions] = useState(false);
+  const [customRiskReduction, setCustomRiskReduction] = useState("");
+  const [reducedEntryPrice, setReducedEntryPrice] = useState<number | null>(null);
+  const [reductionType, setReductionType] = useState<"0.5R" | "custom">("0.5R");
 
   // Function to calculate SL% from entry and SL prices
   const calculateSLPercentage = () => {
@@ -138,6 +144,43 @@ export default function Calculator({
 
     const calculatedEntry = calculateEntryPrice();
     setEntryPrice(calculatedEntry);
+    setShowPositionOptions(true);
+    setReducedEntryPrice(null);
+  };
+
+  // Calculate reduced position entry price
+  const calculateReducedPosition = (type: "0.5R" | "custom", customValue?: number) => {
+    if (!entryPrice) return;
+
+    let reductionFactor: number;
+    
+    if (type === "0.5R") {
+      reductionFactor = 0.5;
+    } else {
+      const value = customValue || parseFloat(customRiskReduction);
+      if (isNaN(value) || value <= 0 || value >= 100) {
+        setError("Vui lòng nhập tỷ lệ giảm hợp lệ (0-100%)");
+        return;
+      }
+      reductionFactor = value / 100;
+    }
+
+    // Calculate new entry price with reduced risk
+    const reducedEntry = entryPrice * reductionFactor;
+    setReducedEntryPrice(reducedEntry);
+    setError("");
+  };
+
+  // Get the display entry price (original or reduced)
+  const getDisplayEntryPrice = () => {
+    return reducedEntryPrice !== null ? reducedEntryPrice : entryPrice;
+  };
+
+  // Get the reduction info text
+  const getReductionInfo = () => {
+    if (reducedEntryPrice === null) return null;
+    const percentage = reductionType === "0.5R" ? "50%" : `${customRiskReduction}%`;
+    return `Giảm ${percentage} so với position gốc`;
   };
 
   const handleSaveSettings = (newSettings: Settings) => {
@@ -165,12 +208,12 @@ export default function Calculator({
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-xl font-bold">TradeCalc</h2>
           <div className="text-sm">
-            <span>
+            <span className="text-base">
               Xin chào, <strong>{userName}</strong>
             </span>
-            <div>
+            <div className="text-sm">
               Số dư:{" "}
-              <span className="text-accent font-bold">
+              <span className="text-accent font-semibold">
                 {balance.toFixed(2)} USDT
               </span>
             </div>
@@ -193,9 +236,9 @@ export default function Calculator({
               placeholder="Ví dụ: 2"
             />
             {parseFloat(riskPercentage) > 0 && (
-              <div className="text-sm mt-1">
+              <div className="text-sm mt-1 text-muted">
                 ={" "}
-                <span className="font-bold text-accent">
+                <span className="font-semibold text-accent">
                   {((parseFloat(riskPercentage) / 100) * balance).toFixed(2)}{" "}
                   USDT
                 </span>
@@ -250,7 +293,7 @@ export default function Calculator({
                 style={{ backgroundColor: "var(--secondary)", padding: "1rem" }}
               >
                 <div className="mb-3">
-                  <label htmlFor="entryPriceInput" className="label text-sm">
+                  <label htmlFor="entryPriceInput" className="label">
                     Giá Entry
                   </label>
                   <input
@@ -265,7 +308,7 @@ export default function Calculator({
                   />
                 </div>
                 <div className="mb-3">
-                  <label htmlFor="stopLossPriceInput" className="label text-sm">
+                  <label htmlFor="stopLossPriceInput" className="label">
                     Giá SL
                   </label>
                   <input
@@ -306,7 +349,7 @@ export default function Calculator({
           </div>
 
           {error && (
-            <div className="mb-4 text-sm" style={{ color: "#ef4444" }}>
+            <div className="mb-4 text-sm text-red-500">
               {error}
             </div>
           )}
@@ -320,13 +363,82 @@ export default function Calculator({
               className="card"
               style={{ backgroundColor: "var(--secondary)" }}
             >
-              <h3 className="font-bold mb-2">Kết quả</h3>
-              <div className="text-lg">
-                Giá vào lệnh:{" "}
+              <h3 className="text-lg font-semibold mb-2">Kết quả</h3>
+              <div className="text-lg mb-4">
+                <span className="text-base font-medium">Giá vào lệnh: </span>
                 <span className="text-accent font-bold">
-                  {entryPrice.toFixed(2)} USDT
+                  {getDisplayEntryPrice()?.toFixed(2)} USDT
                 </span>
+                {getReductionInfo() && (
+                  <div className="text-xs mt-1 text-muted">
+                    {getReductionInfo()}
+                  </div>
+                )}
               </div>
+              
+              {showPositionOptions && (
+                <div className="mt-4 pt-4 border-t border-gray-200">
+                  <h4 className="text-base font-semibold mb-3">Giảm Position</h4>
+                  
+                  <div className="flex gap-2 mb-3">
+                    <button
+                      type="button"
+                      className={`btn btn-sm ${
+                        reductionType === "0.5R" ? "btn-primary" : "btn-secondary"
+                      }`}
+                      onClick={() => {
+                        setReductionType("0.5R");
+                        calculateReducedPosition("0.5R");
+                      }}
+                      style={{ flex: 1 }}
+                    >
+                      0.5R
+                    </button>
+                    <button
+                      type="button"
+                      className={`btn btn-sm ${
+                        reductionType === "custom" ? "btn-primary" : "btn-secondary"
+                      }`}
+                      onClick={() => {
+                        setReductionType("custom");
+                        setReducedEntryPrice(null); // Reset về giá gốc
+                        setCustomRiskReduction(""); // Clear input
+                      }}
+                      style={{ flex: 1 }}
+                    >
+                      Tùy chỉnh
+                    </button>
+                  </div>
+                  
+                  {reductionType === "custom" && (
+                    <div className="mb-3">
+                      <label htmlFor="customRiskReduction" className="label">
+                        Tỷ lệ giảm (%)
+                      </label>
+                      <input
+                        id="customRiskReduction"
+                        type="number"
+                        step="0.1"
+                        min="0.1"
+                        max="99"
+                        className="input"
+                        value={customRiskReduction}
+                        onChange={(e) => {
+                          setCustomRiskReduction(e.target.value);
+                          const value = parseFloat(e.target.value);
+                          if (!isNaN(value) && value > 0 && value < 100) {
+                            calculateReducedPosition("custom", value);
+                          } else {
+                            // Nếu input không hợp lệ hoặc rỗng, reset về giá gốc
+                            setReducedEntryPrice(null);
+                          }
+                        }}
+                        placeholder="Ví dụ: 30"
+                      />
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           )}
         </form>

@@ -163,24 +163,45 @@ input, select, button {
   margin-top: 1.5rem;
 }
 
+.text-xs {
+  font-size: 0.75rem;
+  line-height: 1.25;
+}
+
+.text-sm {
+  font-size: 0.875rem;
+  line-height: 1.375;
+}
+
+.text-base {
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
 .text-lg {
   font-size: 1.125rem;
+  line-height: 1.5;
 }
 
 .text-xl {
   font-size: 1.25rem;
+  line-height: 1.5;
+}
+
+.font-medium {
+  font-weight: 500;
+}
+
+.font-semibold {
+  font-weight: 600;
 }
 
 .font-bold {
   font-weight: 700;
 }
 
-.text-sm {
-  font-size: 0.875rem;
-}
-
-.text-accent {
-  color: var(--accent);
+.text-muted {
+  color: var(--muted-foreground);
 }
 
 .rounded-full {
@@ -213,4 +234,37 @@ input, select, button {
 
 .w-full {
   width: 100%;
+}
+
+.border-t {
+  border-top: 1px solid;
+}
+
+.border-gray-200 {
+  border-color: var(--border);
+}
+
+.text-xs {
+  font-size: 0.75rem;
+  line-height: 1.25;
+}
+
+.pt-4 {
+  padding-top: 1rem;
+}
+
+.mt-4 {
+  margin-top: 1rem;
+}
+
+.mt-1 {
+  margin-top: 0.25rem;
+}
+
+.text-accent {
+  color: var(--accent);
+}
+
+.text-red-500 {
+  color: #ef4444;
 }
