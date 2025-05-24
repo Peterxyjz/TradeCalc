@@ -24,9 +24,9 @@ export default function Calculator({
   // Settings
   const [showSettings, setShowSettings] = useState(false);
   const [settings, setSettings] = useState<Settings>({
-    defaultRiskPercentage: 2,
-    defaultLeverage: 10,
-    defaultStopLossPercentage: 2,
+    defaultRiskPercentage: 5,
+    defaultLeverage: 100,
+    defaultStopLossPercentage: 1,
   });
 
   // Form values
@@ -46,11 +46,13 @@ export default function Calculator({
   // Result
   const [entryPrice, setEntryPrice] = useState<number | null>(null);
   const [error, setError] = useState<string>("");
-  
+
   // Position reduction
   const [showPositionOptions, setShowPositionOptions] = useState(false);
   const [customRiskReduction, setCustomRiskReduction] = useState("");
-  const [reducedEntryPrice, setReducedEntryPrice] = useState<number | null>(null);
+  const [reducedEntryPrice, setReducedEntryPrice] = useState<number | null>(
+    null
+  );
   const [reductionType, setReductionType] = useState<"0.5R" | "custom">("0.5R");
 
   // Function to calculate SL% from entry and SL prices
@@ -149,11 +151,14 @@ export default function Calculator({
   };
 
   // Calculate reduced position entry price
-  const calculateReducedPosition = (type: "0.5R" | "custom", customValue?: number) => {
+  const calculateReducedPosition = (
+    type: "0.5R" | "custom",
+    customValue?: number
+  ) => {
     if (!entryPrice) return;
 
     let reductionFactor: number;
-    
+
     if (type === "0.5R") {
       reductionFactor = 0.5;
     } else {
@@ -179,7 +184,8 @@ export default function Calculator({
   // Get the reduction info text
   const getReductionInfo = () => {
     if (reducedEntryPrice === null) return null;
-    const percentage = reductionType === "0.5R" ? "50%" : `${customRiskReduction}%`;
+    const percentage =
+      reductionType === "0.5R" ? "50%" : `${customRiskReduction}%`;
     return `Giảm ${percentage} so với position gốc`;
   };
 
@@ -348,11 +354,7 @@ export default function Calculator({
             )}
           </div>
 
-          {error && (
-            <div className="mb-4 text-sm text-red-500">
-              {error}
-            </div>
-          )}
+          {error && <div className="mb-4 text-sm text-red-500">{error}</div>}
 
           <button type="submit" className="btn btn-primary mb-4">
             Tính giá vào lệnh
@@ -375,16 +377,20 @@ export default function Calculator({
                   </div>
                 )}
               </div>
-              
+
               {showPositionOptions && (
                 <div className="mt-4 pt-4 border-t border-gray-200">
-                  <h4 className="text-base font-semibold mb-3">Giảm Position</h4>
-                  
+                  <h4 className="text-base font-semibold mb-3">
+                    Giảm Position
+                  </h4>
+
                   <div className="flex gap-2 mb-3">
                     <button
                       type="button"
                       className={`btn btn-sm ${
-                        reductionType === "0.5R" ? "btn-primary" : "btn-secondary"
+                        reductionType === "0.5R"
+                          ? "btn-primary"
+                          : "btn-secondary"
                       }`}
                       onClick={() => {
                         setReductionType("0.5R");
@@ -397,7 +403,9 @@ export default function Calculator({
                     <button
                       type="button"
                       className={`btn btn-sm ${
-                        reductionType === "custom" ? "btn-primary" : "btn-secondary"
+                        reductionType === "custom"
+                          ? "btn-primary"
+                          : "btn-secondary"
                       }`}
                       onClick={() => {
                         setReductionType("custom");
@@ -409,7 +417,7 @@ export default function Calculator({
                       Tùy chỉnh
                     </button>
                   </div>
-                  
+
                   {reductionType === "custom" && (
                     <div className="mb-3">
                       <label htmlFor="customRiskReduction" className="label">
