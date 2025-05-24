@@ -331,13 +331,13 @@ export default function GuidePage() {
               <Link href="/" className="btn btn-primary" style={{ flex: 2 }}>
                 Bắt đầu sử dụng TradeCalc
               </Link>
-              <Link
+              {/* <Link
                 href="/donate"
                 className="btn btn-secondary"
                 style={{ flex: 1 }}
               >
                 ☕ Donate
-              </Link>
+              </Link> */}
             </div>
           </div>
         </footer>
