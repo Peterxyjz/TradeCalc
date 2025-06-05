@@ -2,40 +2,30 @@
 
 import { useState, useEffect } from "react";
 import Image from "next/image";
-import SettingsModal from "./SettingsModal";
+import { CryptoAccount } from "../../types";
+import CryptoSettingsModal from "./CryptoSettingsModal";
 
-interface CalculatorProps {
+interface CryptoCalculatorProps {
   userName: string;
-  balance: number;
-  onUpdateBalance: (newBalance: number) => void;
+  account: CryptoAccount;
+  onUpdateAccount: (account: CryptoAccount) => void;
 }
 
-interface Settings {
-  defaultRiskPercentage: number;
-  defaultLeverage: number;
-  defaultStopLossPercentage: number;
-}
-
-export default function Calculator({
+export default function CryptoCalculator({
   userName,
-  balance,
-  onUpdateBalance,
-}: CalculatorProps) {
+  account,
+  onUpdateAccount,
+}: CryptoCalculatorProps) {
   // Settings
   const [showSettings, setShowSettings] = useState(false);
-  const [settings, setSettings] = useState<Settings>({
-    defaultRiskPercentage: 5,
-    defaultLeverage: 100,
-    defaultStopLossPercentage: 1,
-  });
 
   // Form values
   const [riskPercentage, setRiskPercentage] = useState(
-    settings.defaultRiskPercentage.toString()
+    account.settings.defaultRiskPercentage.toString()
   );
-  const [leverage, setLeverage] = useState(settings.defaultLeverage.toString());
+  const [leverage, setLeverage] = useState(account.settings.defaultLeverage.toString());
   const [stopLossPercentage, setStopLossPercentage] = useState(
-    settings.defaultStopLossPercentage.toString()
+    account.settings.defaultStopLossPercentage.toString()
   );
 
   // Advanced mode for calculating SL%
@@ -69,25 +59,16 @@ export default function Calculator({
     }
   };
 
-  // Load settings from localStorage
+  // Load settings from account
   useEffect(() => {
-    const savedSettings = localStorage.getItem("tradingAppSettings");
-    if (savedSettings) {
-      const parsedSettings = JSON.parse(savedSettings);
-      setSettings(parsedSettings);
-
-      // Set initial form values from saved settings
-      setRiskPercentage(parsedSettings.defaultRiskPercentage.toString());
-      setLeverage(parsedSettings.defaultLeverage.toString());
-      setStopLossPercentage(
-        parsedSettings.defaultStopLossPercentage.toString()
-      );
-    }
-  }, []);
+    setRiskPercentage(account.settings.defaultRiskPercentage.toString());
+    setLeverage(account.settings.defaultLeverage.toString());
+    setStopLossPercentage(account.settings.defaultStopLossPercentage.toString());
+  }, [account.settings]);
 
   // Calculate entry price
   const calculateEntryPrice = () => {
-    const riskAmount = (parseFloat(riskPercentage) / 100) * balance;
+    const riskAmount = (parseFloat(riskPercentage) / 100) * account.balance;
     const leverageValue = parseFloat(leverage);
     const slPercentage = parseFloat(stopLossPercentage) / 100;
 
@@ -189,12 +170,15 @@ export default function Calculator({
     return `Giảm ${percentage} so với position gốc`;
   };
 
-  const handleSaveSettings = (newSettings: Settings) => {
-    setSettings(newSettings);
-    localStorage.setItem("tradingAppSettings", JSON.stringify(newSettings));
+  const handleSaveSettings = (newSettings: CryptoAccount['settings']) => {
+    const updatedAccount = {
+      ...account,
+      settings: newSettings,
+    };
+    onUpdateAccount(updatedAccount);
     setShowSettings(false);
 
-    // Apply new settings to current form if user wants
+    // Apply new settings to current form
     setRiskPercentage(newSettings.defaultRiskPercentage.toString());
     setLeverage(newSettings.defaultLeverage.toString());
     setStopLossPercentage(newSettings.defaultStopLossPercentage.toString());
@@ -212,7 +196,7 @@ export default function Calculator({
 
       <div className="card">
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-xl font-bold">TradeCalc</h2>
+          <h2 className="text-xl font-bold">🚀 Crypto Calculator</h2>
           <div className="text-sm">
             <span className="text-base">
               Xin chào, <strong>{userName}</strong>
@@ -220,7 +204,7 @@ export default function Calculator({
             <div className="text-sm">
               Số dư:{" "}
               <span className="text-accent font-semibold">
-                {balance.toFixed(2)} USDT
+                {account.balance.toFixed(2)} USDT
               </span>
             </div>
           </div>
@@ -245,7 +229,7 @@ export default function Calculator({
               <div className="text-sm mt-1 text-muted">
                 ={" "}
                 <span className="font-semibold text-accent">
-                  {((parseFloat(riskPercentage) / 100) * balance).toFixed(2)}{" "}
+                  {((parseFloat(riskPercentage) / 100) * account.balance).toFixed(2)}{" "}
                   USDT
                 </span>
               </div>
@@ -453,12 +437,12 @@ export default function Calculator({
       </div>
 
       {showSettings && (
-        <SettingsModal
-          balance={balance}
-          settings={settings}
+        <CryptoSettingsModal
+          account={account}
+          settings={account.settings}
           onClose={() => setShowSettings(false)}
           onSave={handleSaveSettings}
-          onUpdateBalance={onUpdateBalance}
+          onUpdateAccount={onUpdateAccount}
         />
       )}
     </div>
