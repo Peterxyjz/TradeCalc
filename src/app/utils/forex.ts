@@ -61,6 +61,44 @@ export const calculateForexPosition = (
   riskAmount: number,
   entryPrice: number,
   slPrice: number,
+  pipValue: number = 10 // Default pip value
+): ForexCalculation => {
+  // New formula: Lot = R / (|SL - Entry| × pips)
+  const priceDifference = Math.abs(slPrice - entryPrice);
+  const positionSize = riskAmount / (priceDifference * pipValue);
+  
+  // For display purposes, we still calculate pips (but don't use in formula)
+  const slPips = priceDifference * 10000; // Assume non-JPY for display
+  if (entryPrice > 50 || slPrice > 50) {
+    // Likely JPY pair
+    const jpyPips = priceDifference * 100;
+    return {
+      riskAmount,
+      entryPrice,
+      slPrice,
+      pairType: 'major',
+      pipValue,
+      slPips: jpyPips,
+      positionSize,
+    };
+  }
+  
+  return {
+    riskAmount,
+    entryPrice,
+    slPrice,
+    pairType: 'major',
+    pipValue,
+    slPips,
+    positionSize,
+  };
+};
+
+// Legacy function for backward compatibility
+export const calculateForexPositionLegacy = (
+  riskAmount: number,
+  entryPrice: number,
+  slPrice: number,
   pair: string = 'EURUSD'
 ): ForexCalculation => {
   const slPips = calculatePips(entryPrice, slPrice, pair);
@@ -115,7 +153,8 @@ export const getMajorPairs = (): string[] => {
 export const validateForexInputs = (
   riskAmount: number,
   entryPrice: number,
-  slPrice: number
+  slPrice: number,
+  pipValue?: number
 ): string | null => {
   if (riskAmount <= 0) {
     return 'Risk amount phải lớn hơn 0';
@@ -131,6 +170,10 @@ export const validateForexInputs = (
   
   if (entryPrice === slPrice) {
     return 'Entry price và Stop Loss price phải khác nhau';
+  }
+
+  if (pipValue !== undefined && pipValue <= 0) {
+    return 'Pip value phải lớn hơn 0';
   }
   
   return null;

@@ -21,6 +21,9 @@ export default function ForexSettingsModal({
   const [riskPercentage, setRiskPercentage] = useState(
     settings.defaultRiskPercentage.toString()
   );
+  const [pipValue, setPipValue] = useState(
+    settings.defaultPipValue?.toString() || "10"
+  );
   const [newBalance, setNewBalance] = useState(account.balance.toString());
   const [error, setError] = useState("");
 
@@ -29,10 +32,16 @@ export default function ForexSettingsModal({
 
     // Validate inputs
     const riskValue = parseFloat(riskPercentage);
+    const pipVal = parseFloat(pipValue);
     const balanceValue = parseFloat(newBalance);
 
     if (isNaN(riskValue) || riskValue <= 0) {
       setError("Mức rủi ro phải là số dương");
+      return;
+    }
+
+    if (isNaN(pipVal) || pipVal <= 0) {
+      setError("Giá trị pip phải là số dương");
       return;
     }
 
@@ -52,6 +61,7 @@ export default function ForexSettingsModal({
 
     onSave({
       defaultRiskPercentage: riskValue,
+      defaultPipValue: pipVal,
       preferredPairs: settings.preferredPairs, // Keep existing
     });
   };
@@ -92,6 +102,24 @@ export default function ForexSettingsModal({
             />
             <div className="text-xs mt-1 text-muted">
               Mức rủi ro phù hợp cho từng lệnh Forex (khuyến nghị: 0.5-2%)
+            </div>
+          </div>
+
+          <div className="mb-4">
+            <label htmlFor="defaultPipValue" className="label">
+              Giá trị pip mặc định
+            </label>
+            <input
+              id="defaultPipValue"
+              type="number"
+              step="0.1"
+              min="0.1"
+              className="input"
+              value={pipValue}
+              onChange={(e) => setPipValue(e.target.value)}
+            />
+            <div className="text-xs mt-1 text-muted">
+              Giá trị mỗi pip (mặc định: $10/pip cho hầu hết các cặp tiền tệ)
             </div>
           </div>
 

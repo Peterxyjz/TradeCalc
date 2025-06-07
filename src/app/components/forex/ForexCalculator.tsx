@@ -28,6 +28,9 @@ export default function ForexCalculator({
   const [riskPercentage, setRiskPercentage] = useState(
     account.settings.defaultRiskPercentage.toString()
   );
+  const [pipValue, setPipValue] = useState(
+    account.settings.defaultPipValue?.toString() || "10"
+  );
   const [entryPrice, setEntryPrice] = useState("");
   const [slPrice, setSlPrice] = useState("");
 
@@ -44,23 +47,19 @@ export default function ForexCalculator({
   // Load settings from account
   useEffect(() => {
     setRiskPercentage(account.settings.defaultRiskPercentage.toString());
+    setPipValue(account.settings.defaultPipValue?.toString() || "10");
   }, [account.settings]);
 
-  // Simplified Forex calculation - no currency pair needed
-  const calculateForexPosition = (riskAmount: number, entryPrice: number, slPrice: number) => {
-    // Auto-detect if it's a JPY pair based on price levels
+  // New Forex calculation with updated formula
+  const calculateForexPosition = (riskAmount: number, entryPrice: number, slPrice: number, pipValue: number) => {
+    // New formula: Lot = R / (|SL - Entry| × pips)
+    const priceDifference = Math.abs(slPrice - entryPrice);
+    const positionSize = riskAmount / (priceDifference * pipValue);
+    
+    // For display purposes, still show pips calculation
     const avgPrice = (entryPrice + slPrice) / 2;
-    const isJPYPair = avgPrice > 50; // JPY pairs usually > 100, others < 10
-    
-    // Calculate pips
-    const priceDiff = Math.abs(entryPrice - slPrice);
-    const slPips = isJPYPair ? priceDiff * 100 : priceDiff * 10000;
-    
-    // Standard pip value (simplified)
-    const pipValue = 10; // $10 per pip for 1 lot (industry standard)
-    
-    // Position size in lots = Risk Amount / (SL pips × Pip Value)
-    const positionSize = riskAmount / (slPips * pipValue);
+    const isJPYPair = avgPrice > 50;
+    const slPips = isJPYPair ? priceDifference * 100 : priceDifference * 10000;
     
     return {
       riskAmount,
@@ -69,7 +68,8 @@ export default function ForexCalculator({
       slPips,
       pipValue,
       positionSize,
-      isJPYPair
+      isJPYPair,
+      priceDifference
     };
   };
 
@@ -93,9 +93,15 @@ export default function ForexCalculator({
       return;
     }
 
+    if (!pipValue.trim()) {
+      setError("Vui lòng nhập giá trị pip");
+      return;
+    }
+
     const rValue = parseFloat(riskPercentage);
     const entryValue = parseFloat(entryPrice);
     const slValue = parseFloat(slPrice);
+    const pipVal = parseFloat(pipValue);
 
     if (isNaN(rValue) || rValue <= 0) {
       setError("Mức rủi ro phải là số dương");
@@ -112,6 +118,11 @@ export default function ForexCalculator({
       return;
     }
 
+    if (isNaN(pipVal) || pipVal <= 0) {
+      setError("Giá trị pip phải là số dương");
+      return;
+    }
+
     if (entryValue === slValue) {
       setError("Giá Entry và Stop Loss phải khác nhau");
       return;
@@ -121,14 +132,14 @@ export default function ForexCalculator({
     const riskAmount = (rValue / 100) * account.balance;
 
     // Validate forex inputs
-    const validationError = validateForexInputs(riskAmount, entryValue, slValue);
+    const validationError = validateForexInputs(riskAmount, entryValue, slValue, pipVal);
     if (validationError) {
       setError(validationError);
       return;
     }
 
-    // Calculate position (simplified)
-    const result = calculateForexPosition(riskAmount, entryValue, slValue);
+    // Calculate position with new formula
+    const result = calculateForexPosition(riskAmount, entryValue, slValue, pipVal);
     setCalculation(result);
     setShowPositionOptions(true);
     setReducedLotSize(null);
@@ -182,6 +193,7 @@ export default function ForexCalculator({
 
     // Apply new settings to current form
     setRiskPercentage(newSettings.defaultRiskPercentage.toString());
+    setPipValue(newSettings.defaultPipValue?.toString() || "10");
   };
 
   // Calculate pips for display
@@ -245,6 +257,25 @@ export default function ForexCalculator({
                 </span>
               </div>
             )}
+          </div>
+
+          <div className="mb-4">
+            <label htmlFor="pipValue" className="label">
+              Giá trị pip (Pips)
+            </label>
+            <input
+              id="pipValue"
+              type="number"
+              step="0.1"
+              min="0.1"
+              className="input"
+              value={pipValue}
+              onChange={(e) => setPipValue(e.target.value)}
+              placeholder="Ví dụ: 10"
+            />
+            <div className="text-sm mt-1 text-muted">
+              Giá trị mỗi pip (mặc định: $10/pip)
+            </div>
           </div>
 
           <div className="mb-4">
@@ -314,8 +345,9 @@ export default function ForexCalculator({
                 
                 <div className="text-sm space-y-1">
                   <div>Risk: {calculation.riskAmount.toFixed(2)} USD</div>
-                  <div>SL: {formatPips(calculation.slPips)} pips</div>
-                  <div>Pip value: ${calculation.pipValue}/pip (standard)</div>
+                  <div>Price difference: {calculation.priceDifference.toFixed(5)}</div>
+                  <div>Pip value: ${calculation.pipValue}/pip</div>
+                  <div className="text-xs text-muted">Công thức: {calculation.riskAmount.toFixed(2)} / ({calculation.priceDifference.toFixed(5)} × {calculation.pipValue}) = {formatLotSize(getDisplayLotSize())} lots</div>
                 </div>
               </div>
 

@@ -10,6 +10,7 @@ export const defaultCryptoSettings = {
 
 export const defaultForexSettings = {
   defaultRiskPercentage: 1,
+  defaultPipValue: 10, // Default $10 per pip
   preferredPairs: ['EURUSD', 'GBPUSD', 'USDJPY'],
 };
 

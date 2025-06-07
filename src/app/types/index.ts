@@ -17,6 +17,7 @@ export interface CryptoSettings {
 
 export interface ForexSettings {
   defaultRiskPercentage: number;
+  defaultPipValue: number;
   preferredPairs: string[];
 }
 

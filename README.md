@@ -6,7 +6,7 @@
 
 ### 🎯 Multi-Mode Trading Support
 - **🚀 Crypto Mode**: Tính position size với công thức `R / Leverage / SL%`
-- **💱 Forex Mode**: Tính lot size với công thức `Risk / (SL pips × Pip Value)`
+- **💱 Forex Mode**: Tính lot size với công thức `R / (|SL - Entry| × pips)`
 - **🔄 Flexible**: Có thể dùng 1 mode hoặc cả 2, không bắt buộc
 - **🎛️ Easy Switch**: Chuyển đổi mượt mà giữa Crypto và Forex
 
@@ -82,22 +82,22 @@ Position Size = 20 / 10 / 0.02 = 100 USDT
 
 ### 💱 Forex Formula
 ```
-Lot Size = Risk Amount / (SL pips × Pip Value)
+Lot = R / (|SL - Entry| × pips)
 
 Trong đó:
-- Risk Amount = (Risk% / 100) × Account Balance
-- SL pips = |Entry - SL| × (JPY: 100, Others: 10000)
-- Pip Value = $10/pip (industry standard)
+- R (Risk Amount) = (Risk% / 100) × Account Balance
+- |SL - Entry| = Giá trị tuyệt đối của hiệu giá SL và Entry
+- pips = Giá trị pip có thể cài đặt (mặc định: $10/pip)
 ```
 
 **Ví dụ Forex:**
 ```
 Account: 200 USD
-Risk: 10% → Risk Amount = 20 USD
-Entry: 1.14122, SL: 1.14049 → 7.3 pips
-Pip Value: $10/pip
+Risk: 10% → R = 20 USD
+Entry: 1.14122, SL: 1.14049 → |SL - Entry| = 0.00073
+Pip Value: $10/pip (default setting)
 
-Lot Size = 20 / (7.3 × 10) = 0.27 lots
+Lot = 20 / (0.00073 × 10) = 2.74 lots
 ```
 
 ## 🚀 Cài Đặt & Chạy Dự Án
@@ -159,10 +159,11 @@ yarn start
 
 ### 💱 Forex Trading
 1. **Nhập mức rủi ro** (%) - ví dụ: 1%
-2. **Nhập giá Entry** - ví dụ: 1.14122
-3. **Nhập giá SL** - ví dụ: 1.14049
-4. **Tính lot size** → Nhận kết quả bằng lots
-5. **Tùy chọn giảm** position nếu cần
+2. **Nhập giá trị pip** - ví dụ: 10
+3. **Nhập giá Entry** - ví dụ: 1.14122
+4. **Nhập giá SL** - ví dụ: 1.14049
+5. **Tính lot size** → Nhận kết quả bằng lots
+6. **Tùy chọn giảm** position nếu cần
 
 ### ⚙️ Settings Management
 - **Mode Settings**: Nhấn ⚙️ trong calculator để cài đặt riêng
@@ -244,11 +245,12 @@ Account: 10,000 USD
 Strategy: EURUSD swing
 Risk: 2% per trade
 Entry: 1.0850
-SL: 1.0800 (50 pips)
+SL: 1.0800
+Pip Value: 10
 
 → Lot Size: 4.0 lots
 → Max loss: 200 USD (2% account)
-→ Leverage: Doesn't affect calculation
+→ Formula: 200 / (0.005 × 10) = 4.0 lots
 ```
 
 ### 🔄 Multi-Mode Trader
